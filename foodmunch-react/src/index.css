@@ -294,3 +294,94 @@
   font-family: "Roboto";
   font-size: 14px;
 }
+
+
+/* Category Page Styles */
+/* Amazon-like enhancements */
+.breadcrumb {
+  background-color: transparent;
+  padding: 0.75rem 0;
+}
+
+.dish-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #dee2e6;
+}
+
+.dish-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  border-color: #d0b200;
+}
+
+.add-to-cart-btn {
+  background-color: #d0b200;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.add-to-cart-btn:hover {
+  background-color: #b89c00;
+}
+
+.add-to-cart-btn:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+}
+
+.quantity-selector button {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Checkout Page Styles */
+.checkout-page {
+  background-color: #f9f9f9;
+  min-height: 100vh;
+}
+
+.cart-item-image {
+  object-fit: cover;
+  height: 80px;
+  width: 80px;
+}
+
+.order-confirmed {
+  background-color: #f9fbfe;
+  min-height: 100vh;
+}
+
+/* Sticky order summary */
+.sticky-top {
+  position: sticky;
+  z-index: 1020;
+}
+/* Add these styles at the top level */
+/* Reset and base styles */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Main app container */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Content area */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: visible;
+}
