@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navbar, Nav } from 'react-bootstrap';
+import SearchBar from './SearchBar';
 
 const FoodMunchNavbar = () => {
   return (
@@ -12,6 +13,11 @@ const FoodMunchNavbar = () => {
             alt="Food Munch Logo"
           />
         </Navbar.Brand>
+
+        <div className="mx-3 flex-grow-1">
+          <SearchBar />
+        </div>
+
         <Navbar.Toggle aria-controls="navbarNavAltMarkup" />
         <Navbar.Collapse id="navbarNavAltMarkup">
           <Nav className="ml-auto">

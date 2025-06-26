@@ -22,7 +22,7 @@ const CategoryPage = () => {
     if (quantities[dish.id] > 0) {
       addToCart(dish, quantities[dish.id]);
       navigate('/checkout');
-      window.scrollTo(0, 0); // Scroll to top after navigation
+      window.scrollTo(0, 0);
     }
   };
 

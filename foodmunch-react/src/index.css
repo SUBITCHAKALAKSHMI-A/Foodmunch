@@ -357,31 +357,119 @@
 }
 
 /* Sticky order summary */
-.sticky-top {
-  position: sticky;
-  z-index: 1020;
-}
-/* Add these styles at the top level */
-/* Reset and base styles */
+/* Global Styles */
 html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
 }
 
-/* Main app container */
+/* Layout Structure */
 .app-container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* Content area */
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 60px;
+  z-index: 1000;
+}
+
 .main-content {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  margin-top: 60px; /* Navbar height */
+  margin-bottom: 80px; /* Footer height */
+  padding: 20px 0;
+  overflow-y: auto;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 80px;
+}
+/* Search Bar Styles */
+.search-container {
   position: relative;
-  overflow: visible;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.search-box {
+  display: flex;
+  border: 2px solid #d0b200;
+  border-radius: 50px;
+  overflow: hidden;
+  background: white;
+}
+
+.search-box input {
+  flex: 1;
+  padding: 8px 20px;
+  border: none;
+  outline: none;
+}
+
+.voice-btn {
+  background: #d0b200;
+  color: white;
+  border: none;
+  padding: 0 20px;
+  cursor: pointer;
+  font-size: 20px;
+  transition: all 0.3s;
+}
+
+.voice-btn.listening {
+  animation: pulse 1.5s infinite;
+  background: #c0392b;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.search-results {
+  position: absolute;
+  width: 100%;
+  background: white;
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+
+.result-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  border-bottom: 1px solid #eee;
+  text-decoration: none;
+  color: #333;
+}
+
+.result-item:hover {
+  background: #f9f9f9;
+}
+
+.result-item img {
+  border-radius: 4px;
+  margin-right: 15px;
+}
+
+.result-item h5 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.result-item p {
+  margin: 0;
+  color: #d0b200;
+  font-weight: bold;
 }

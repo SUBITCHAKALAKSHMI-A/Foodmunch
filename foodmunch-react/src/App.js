@@ -16,19 +16,14 @@ import { useEffect } from 'react';
 function RootLayout() {
   return (
     <div className="app-container">
-      <Navbar />
-      <main className="main-content" style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column'
-      }}>
+      <Navbar className="navbar" />
+      <main className="main-content">
         <Outlet />
       </main>
-      <Footer />
+      <Footer className="footer" />
     </div>
   );
 }
-
 function HomePage() {
   return (
     <>
@@ -56,17 +51,17 @@ function ScrollToTop() {
 function App() {
   return (
     <CartProvider>
-    <BrowserRouter>
-    <ScrollToTop />
-      <Routes>
-        <Route element={<RootLayout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/category/:categorySlug" element={<CategoryPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/order-confirmed" element={<OrderConfirmed />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+      <BrowserRouter>
+        <ScrollToTop />
+        <Routes>
+          <Route element={<RootLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/category/:categorySlug" element={<CategoryPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/order-confirmed" element={<OrderConfirmed />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
     </CartProvider>
   );
 }
