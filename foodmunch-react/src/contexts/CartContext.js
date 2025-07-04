@@ -1,33 +1,28 @@
-import React, { createContext, useState, useContext, useCallback } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
+  const [isGroupOrder, setIsGroupOrder] = useState(false);
+  const [groupId, setGroupId] = useState(null);
 
-  const addToCart = useCallback((dish, quantity) => {
-    setCart(prevCart => {
-      const existingItem = prevCart.find(item => item.id === dish.id);
-      if (existingItem) {
-        return prevCart.map(item =>
-          item.id === dish.id 
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      }
-      return [...prevCart, { ...dish, quantity }];
-    });
-  }, []);
+  const addToCart = (item, quantity = 1) => {
+    setCart([...cart, { ...item, quantity }]);
+  };
 
-  const cartTotal = cart.reduce(
-    (total, item) => total + (item.price * item.quantity), 
-    0
-  );
-
-  const clearCart = useCallback(() => setCart([]), []);
+  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, cartTotal, clearCart }}>
+    <CartContext.Provider value={{
+      cart,
+      addToCart,
+      cartTotal,
+      isGroupOrder,
+      setIsGroupOrder,
+      groupId,
+      setGroupId
+    }}>
       {children}
     </CartContext.Provider>
   );

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
+import GroupOrderButton from './GroupOrderButton';
 
 const CheckoutPage = () => {
   const { cart, cartTotal } = useCart();
@@ -11,7 +12,10 @@ const CheckoutPage = () => {
         <div className="col-md-8">
           <div className="card shadow mb-4">
             <div className="card-body">
-              <h2 className="mb-4">Your Order</h2>
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <h2 className="mb-0">Your Order</h2>
+                <GroupOrderButton />
+              </div>
               {cart.map(item => (
                 <div key={item.id} className="py-3 border-bottom">
                   <div className="d-flex justify-content-between">
@@ -46,9 +50,13 @@ const CheckoutPage = () => {
                 <strong>Total:</strong>
                 <strong>₹{(cartTotal + 40).toFixed(2)}</strong>
               </div>
-              <Link to="/order-confirmed" className="btn btn-primary w-100 py-2">
+              <Link to="/order-confirmed" className="btn btn-primary w-100 py-2 mb-2">
                 Confirm Order
               </Link>
+              <div className="text-center">
+                <small className="text-muted">or</small>
+              </div>
+              <GroupOrderButton className="btn btn-outline-primary w-100 py-2 mt-2" />
             </div>
           </div>
         </div>

@@ -11,8 +11,11 @@ import FollowUs from './components/FollowUs';
 import CategoryPage from './components/CategoryPage';
 import CheckoutPage from './components/CheckoutPage';
 import OrderConfirmed from './components/OrderConfirmed';
+import { GroupOrderProvider } from './contexts/GroupOrderContext';
+import GroupOrderPage from './components/GroupOrderPage';
 import { CartProvider } from './contexts/CartContext';
 import { useEffect } from 'react';
+import { AuthProvider } from './contexts/AuthContext'; 
 function RootLayout() {
   return (
     <div className="app-container">
@@ -50,19 +53,24 @@ function ScrollToTop() {
 
 function App() {
   return (
+     <AuthProvider>
     <CartProvider>
+      <GroupOrderProvider>
       <BrowserRouter>
         <ScrollToTop />
         <Routes>
           <Route element={<RootLayout />}>
             <Route path="/" element={<HomePage />} />
+            <Route path="/group/:groupId" element={<GroupOrderPage />} />
             <Route path="/category/:categorySlug" element={<CategoryPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/order-confirmed" element={<OrderConfirmed />} />
           </Route>
         </Routes>
       </BrowserRouter>
+      </GroupOrderProvider>
     </CartProvider>
+    </AuthProvider>
   );
 }
 
