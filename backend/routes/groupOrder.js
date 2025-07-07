@@ -2,133 +2,169 @@ const express = require('express');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const GroupOrder = require('../models/GroupOrder');
-const User = require('../models/User');
+const Dish = require('../models/Dish');
+const mongoose = require('mongoose');
 
-// POST - Create new group order (keep existing)
+// Create new group order
 router.post('/', async (req, res) => {
   try {
-    console.log('Incoming request body:', req.body);
-    
-    if (!req.body.userId) {
+    const { userId } = req.body;
+
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({
         success: false,
-        error: "UserId is required"
+        error: "Valid user ID is required"
       });
     }
 
-    const user = await User.findById(req.body.userId);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: "User not found"
-      });
-    }
-
-    const group = new GroupOrder({
-      groupId: uuidv4(),
-      creator: user._id,
-      members: [user._id]
+    const groupId = uuidv4();
+    const newGroup = await GroupOrder.create({
+      groupId,
+      creator: userId,
+      members: [userId],
+      items: []
     });
 
-    const savedGroup = await group.save();
-    
-    console.log('Group created:', savedGroup);
-    
     res.status(201).json({
       success: true,
-      groupId: savedGroup.groupId,
-      creator: {
-        id: user._id,
-        name: user.name
-      }
+      groupId: newGroup.groupId
     });
 
   } catch (err) {
-    console.error('Error creating group:', err);
     res.status(500).json({
       success: false,
-      error: err.message,
-      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+      error: "Server error: " + err.message
     });
   }
 });
 
-// GET - Fetch group order details (keep existing)
+// Get group order details
 router.get('/:groupId', async (req, res) => {
   try {
     const group = await GroupOrder.findOne({ groupId: req.params.groupId })
       .populate('creator', 'name email')
       .populate('members', 'name email')
-      .populate('items.user', 'name')
-      .populate({
-        path: 'items.dish',
-        select: 'name price image',
-        model: 'Dish'
-      });
+      .populate('items.user', 'name email')
+      .populate('items.dish', 'name price image category')
+      .lean();
 
     if (!group) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        error: "Group not found" 
+        error: "Group not found"
       });
     }
 
-    // Add split calculations
-    const total = group.items.reduce((sum, item) => sum + (item.dish.price * item.quantity), 0);
-    const equalSplit = total / (group.members.length || 1);
-    const itemizedSplit = group.items.reduce((acc, item) => {
-      const userId = item.user._id.toString();
-      acc[userId] = (acc[userId] || 0) + (item.dish.price * item.quantity);
-      return acc;
-    }, {});
+    const { total, equalSplit, itemizedSplit } = calculateSplits(group);
 
-    res.json({ 
+    res.json({
       success: true,
       group,
       splits: {
+        total,
         equalSplit,
-        itemizedSplit,
-        total
+        itemizedSplit
       }
     });
-    
+
   } catch (err) {
-    console.error('Error fetching group:', err);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: err.message 
+      error: process.env.NODE_ENV === 'development' ? err.message : 'Server error'
     });
   }
 });
 
-// POST - Add item to group (new endpoint)
+// Add item to group order
 router.post('/:groupId/items', async (req, res) => {
   try {
-    const group = await GroupOrder.findOneAndUpdate(
-      { groupId: req.params.groupId },
-      { $push: { items: req.body.item } },
-      { new: true }
-    ).populate('items.user items.dish');
+    const { userId, dishId, quantity = 1 } = req.body;
 
-    if (!group) {
-      return res.status(404).json({ 
+    // ✅ Validate userId
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
         success: false,
-        error: "Group not found" 
+        error: "Valid user ID is required"
       });
     }
 
-    res.json({ 
+    // ✅ Validate dishId
+    if (!dishId || !mongoose.Types.ObjectId.isValid(dishId)) {
+      return res.status(400).json({
+        success: false,
+        error: "Valid dish ID is required"
+      });
+    }
+
+    // ✅ Find dish by _id only
+    const dish = await Dish.findById(dishId);
+
+    if (!dish) {
+      return res.status(404).json({
+        success: false,
+        error: `Dish not found for ID: ${dishId}`
+      });
+    }
+
+    // ✅ Add item to group order
+    const group = await GroupOrder.findOneAndUpdate(
+      { groupId: req.params.groupId },
+      {
+        $push: {
+          items: {
+            user: userId,
+            dish: dish._id,
+            quantity: quantity
+          }
+        },
+        $addToSet: { members: userId }
+      },
+      {
+        new: true,
+        runValidators: true
+      }
+    )
+      .populate('items.user', 'name email')
+      .populate('items.dish', 'name price image');
+
+    if (!group) {
+      return res.status(404).json({
+        success: false,
+        error: "Group not found"
+      });
+    }
+
+    res.json({
       success: true,
-      group 
+      group
     });
-    
+
   } catch (err) {
-    console.error('Error adding item:', err);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: err.message 
+      error: `Server error: ${err.message}`
     });
   }
 });
+
+// Helper function to calculate splits
+function calculateSplits(group) {
+  const total = group.items.reduce((sum, item) => {
+    return sum + (item.dish?.price || 0) * (item.quantity || 1);
+  }, 0);
+
+  const memberCount = Math.max(group.members?.length || 1, 1);
+  const equalSplit = total / memberCount;
+
+  const itemizedSplit = group.items.reduce((acc, item) => {
+    const userId = item.user?._id?.toString() || item.user?.toString();
+    if (userId) {
+      acc[userId] = (acc[userId] || 0) + (item.dish?.price || 0) * (item.quantity || 1);
+    }
+    return acc;
+  }, {});
+
+  return { total, equalSplit, itemizedSplit };
+}
 
 module.exports = router;

@@ -19,12 +19,19 @@ const CategoryPage = () => {
   };
 
   const handleAddToCart = (dish) => {
-    if (quantities[dish.id] > 0) {
-      addToCart(dish, quantities[dish.id]);
-      navigate('/checkout');
-      window.scrollTo(0, 0);
-    }
-  };
+  if (quantities[dish.id] > 0) {
+    addToCart(
+      {
+        ...dish,
+        _id: "68696f6dbd1574b65fd61783" // 👈 fallback if needed
+      },
+      quantities[dish.id]
+    );
+    navigate('/checkout');
+    window.scrollTo(0, 0);
+  }
+};
+
 
   const formatCategoryName = (slug) => {
     return slug.split('-').map(word => 

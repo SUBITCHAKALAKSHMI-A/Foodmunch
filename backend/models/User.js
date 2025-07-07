@@ -2,15 +2,24 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const UserSchema = new mongoose.Schema({
-  name: { type: String, required: true },
+  name: { 
+    type: String, 
+    required: true 
+  },
   email: { 
     type: String, 
     required: true, 
     unique: true,
     match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ 
   },
-  password: { type: String, required: true, select: false },
-  phone: { type: String },
+  password: { 
+    type: String, 
+    required: true, 
+    select: false 
+  },
+  phone: { 
+    type: String 
+  },
   address: {
     street: String,
     city: String,
@@ -18,11 +27,13 @@ const UserSchema = new mongoose.Schema({
     zipCode: String
   },
   paymentMethods: [{
-    type: { type: String, enum: ['upi', 'card', 'paypal'] },
+    type: { 
+      type: String, 
+      enum: ['upi', 'card', 'paypal'] 
+    },
     details: mongoose.Schema.Types.Mixed
-  }],
-  createdAt: { type: Date, default: Date.now }
-});
+  }]
+}, { timestamps: true });
 
 // Hash password before saving
 UserSchema.pre('save', async function(next) {
@@ -31,8 +42,8 @@ UserSchema.pre('save', async function(next) {
   next();
 });
 
-// Add method to get simplified user data
-UserSchema.methods.getPublicProfile = function() {
+// Method to get user data without sensitive info
+UserSchema.methods.toJSON = function() {
   const user = this.toObject();
   delete user.password;
   return user;

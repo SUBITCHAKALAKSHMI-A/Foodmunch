@@ -16,6 +16,8 @@ import GroupOrderPage from './components/GroupOrderPage';
 import { CartProvider } from './contexts/CartContext';
 import { useEffect } from 'react';
 import { AuthProvider } from './contexts/AuthContext'; 
+import './App.css'; // or whatever your stylesheet filename is
+
 function RootLayout() {
   return (
     <div className="app-container">
